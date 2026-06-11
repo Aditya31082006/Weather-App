@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SkyPulse — Live Weather</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<div class="scene" id="scene">
+  <!-- Ambient background particles -->
+  <div class="particles" id="particles" aria-hidden="true"></div>
+
+  <div class="app-wrap">
+
+    <!-- ════ TOPBAR ════ -->
+    <header class="topbar">
+      <div class="logo">
+        <svg viewBox="0 0 36 36" fill="none" aria-hidden="true">
+          <circle cx="18" cy="18" r="17" stroke="currentColor" stroke-width="1.5" stroke-dasharray="6 3" opacity=".5"/>
+          <circle cx="18" cy="14" r="5" fill="currentColor" opacity=".9"/>
+          <path d="M10 24 Q18 14 26 24" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+        </svg>
+        <span>SkyPulse</span>
+      </div>
+      <div class="topbar-right">
+        <button class="btn-icon" id="locateBtn" title="Use my location" aria-label="Detect my location">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/>
+            <circle cx="12" cy="12" r="7" opacity=".3"/>
+          </svg>
+        </button>
+        <button class="btn-icon theme-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle dark/light mode">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="5"/>
+            <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- ════ SEARCH ════ -->
+    <section class="search-zone">
+      <div class="search-box" id="searchBox">
+        <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Search any city…" autocomplete="off" spellcheck="false" aria-label="Search city"/>
+        <button id="searchBtn" aria-label="Go">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <path d="M5 12h14M13 6l6 6-6 6"/>
+          </svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- ════ MAIN ════ -->
+    <main class="main" id="main">
+
+      <!-- Loading -->
+      <div class="state-load hidden" id="stLoad">
+        <div class="spinner"></div>
+        <p>Reading the sky…</p>
+      </div>
+
+      <!-- Error -->
+      <div class="state-err hidden" id="stErr" role="alert">
+        <div class="err-emoji" id="errEmoji">⚠️</div>
+        <h2 id="errTitle">Something went wrong</h2>
+        <p id="errMsg">Try again.</p>
+        <button class="btn-retry" id="retryBtn">Retry</button>
+      </div>
+
+      <!-- Welcome -->
+      <div class="state-welcome" id="stWelcome">
+        <div class="welcome-cloud" aria-hidden="true">⛅</div>
+        <h2>Your sky, live.</h2>
+        <p>Search a city or allow location access.</p>
+      </div>
+
+      <!-- Weather -->
+      <div class="weather hidden" id="stWeather">
+
+        <!-- Hero -->
+        <div class="hero glass">
+          <div class="hero-left">
+            <div class="hero-loc">
+              <h1 id="wCity">—</h1>
+              <span id="wCountry" class="country-badge"></span>
+            </div>
+            <div class="hero-date" id="wDate">—</div>
+            <div class="hero-time" id="wTime">—</div>
+            <div class="hero-desc" id="wDesc">—</div>
+          </div>
+          <div class="hero-right">
+            <div class="hero-icon-wrap">
+              <img id="wIcon" src="" alt="" width="110" height="110"/>
+              <div class="hero-glow" id="heroGlow" aria-hidden="true"></div>
+            </div>
+            <div class="hero-temp">
+              <span id="wTemp">—</span><sup>°C</sup>
+            </div>
+            <div class="hero-feels">Feels like <strong id="wFeels">—</strong>°C</div>
+          </div>
+        </div>
+
+        <!-- Stats row -->
+        <div class="stats-row">
+          <div class="stat glass">
+            <div class="stat-icon">💧</div>
+            <div class="stat-info">
+              <span id="sHumidity">—</span>
+              <small>Humidity</small>
+            </div>
+          </div>
+          <div class="stat glass">
+            <div class="stat-icon">🌬️</div>
+            <div class="stat-info">
+              <span id="sWind">—</span>
+              <small>Wind</small>
+            </div>
+          </div>
+          <div class="stat glass">
+            <div class="stat-icon">🌡️</div>
+            <div class="stat-info">
+              <span id="sPressure">—</span>
+              <small>Pressure</small>
+            </div>
+          </div>
+          <div class="stat glass">
+            <div class="stat-icon">👁️</div>
+            <div class="stat-info">
+              <span id="sVisibility">—</span>
+              <small>Visibility</small>
+            </div>
+          </div>
+          <div class="stat glass">
+            <div class="stat-icon">🌅</div>
+            <div class="stat-info">
+              <span id="sSunrise">—</span>
+              <small>Sunrise</small>
+            </div>
+          </div>
+          <div class="stat glass">
+            <div class="stat-icon">🌇</div>
+            <div class="stat-info">
+              <span id="sSunset">—</span>
+              <small>Sunset</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- AQI -->
+        <div class="aqi-card glass" id="aqiCard">
+          <div class="aqi-head">
+            <h2 class="sec-label">Air Quality</h2>
+            <div class="aqi-pill" id="aqiPill">—</div>
+          </div>
+          <div class="aqi-track">
+            <div class="aqi-rail"></div>
+            <div class="aqi-dot" id="aqiDot"></div>
+          </div>
+          <div class="aqi-scale">
+            <span>Good</span><span>Fair</span><span>Moderate</span><span>Poor</span><span>Very Poor</span>
+          </div>
+          <div class="aqi-chips" id="aqiChips"></div>
+        </div>
+
+        <!-- Hourly -->
+        <div class="forecast-block">
+          <h2 class="sec-label">Hourly</h2>
+          <div class="hourly-scroll">
+            <div class="hourly-row" id="hourlyRow"></div>
+          </div>
+        </div>
+
+        <!-- 5-day -->
+        <div class="forecast-block">
+          <h2 class="sec-label">5-Day Forecast</h2>
+          <div class="days-grid" id="daysGrid"></div>
+        </div>
+
+      </div><!-- /weather -->
+
+    </main>
+
+    <footer class="foot">Data · <a href="https://openweathermap.org" target="_blank" rel="noopener">OpenWeatherMap</a></footer>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
